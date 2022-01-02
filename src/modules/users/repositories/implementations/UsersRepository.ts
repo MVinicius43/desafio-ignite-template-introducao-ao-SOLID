@@ -2,41 +2,62 @@ import { User } from "../../model/User";
 import { IUsersRepository, ICreateUserDTO } from "../IUsersRepository";
 
 class UsersRepository implements IUsersRepository {
-  private users: User[];
+    private users: User[];
 
-  private static INSTANCE: UsersRepository;
+    private static INSTANCE: UsersRepository;
 
-  private constructor() {
-    this.users = [];
-  }
-
-  public static getInstance(): UsersRepository {
-    if (!UsersRepository.INSTANCE) {
-      UsersRepository.INSTANCE = new UsersRepository();
+    private constructor() {
+        this.users = [];
     }
 
-    return UsersRepository.INSTANCE;
-  }
+    public static getInstance(): UsersRepository {
+        if (!UsersRepository.INSTANCE) {
+            UsersRepository.INSTANCE = new UsersRepository();
+        }
 
-  create({ name, email }: ICreateUserDTO): User {
-    // Complete aqui
-  }
+        return UsersRepository.INSTANCE;
+    }
 
-  findById(id: string): User | undefined {
-    // Complete aqui
-  }
+    create({ name, email }: ICreateUserDTO): User {
+        const user = new User();
 
-  findByEmail(email: string): User | undefined {
-    // Complete aqui
-  }
+        Object.assign(user, {
+            name,
+            email,
+        });
 
-  turnAdmin(receivedUser: User): User {
-    // Complete aqui
-  }
+        this.users.push(user);
 
-  list(): User[] {
-    // Complete aqui
-  }
+        return user;
+    }
+
+    findById(id: string): User | undefined {
+        const user = this.users.find((user) => user.id === id);
+        return user;
+    }
+
+    findByEmail(email: string): User | undefined {
+        const userEmail = this.users.find((user) => user.email === email);
+        return userEmail;
+    }
+
+    turnAdmin(receivedUser: User): User {
+        const newUser = { ...receivedUser };
+
+        this.users.forEach((user, index) => {
+            if (user.id === newUser.id) {
+                newUser.admin = true;
+                newUser.updated_at = new Date();
+                this.users.splice(index, 1, newUser);
+            }
+        });
+
+        return newUser;
+    }
+
+    list(): User[] {
+        return this.users;
+    }
 }
 
 export { UsersRepository };
